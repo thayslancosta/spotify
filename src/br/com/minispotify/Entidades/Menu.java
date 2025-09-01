@@ -1,5 +1,8 @@
 package br.com.minispotify.Entidades;
 
+import br.com.minispotify.Exceptions.EmailInvalidoException;
+import br.com.minispotify.Exceptions.PlaylistNaoEncontradaException;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -67,7 +70,11 @@ public class Menu {
 
             switch (opcao) {
                 case 1:
-                    criarNovoUsuario();
+                    try {
+                        criarNovoUsuario();
+                    } catch (EmailInvalidoException e) {
+                        System.out.println("Erro: " + e.getMessage());
+                    }
                     break;
                 case 2:
                     menuPlaylists();
@@ -81,11 +88,15 @@ public class Menu {
         } while (opcao != 3);
     }
     //Metodo para criar novo usuário
-    private void criarNovoUsuario() {
+    private void criarNovoUsuario () throws EmailInvalidoException {
         System.out.print("Digite o nome do usuário: ");
         String nome = scanner.nextLine();
         System.out.print("Digite o email: ");
         String email = scanner.nextLine();
+
+        if (email == null || !email.contains("@")) {
+            throw new EmailInvalidoException();
+        }
 
         try {
             usuarioAtual = new Usuario(nome, email);
@@ -101,7 +112,11 @@ public class Menu {
         //Conferindo se usuário está cadastrado
         if (usuarioAtual == null) {
             System.out.println("Nenhum usuário selecionado!");
-            criarNovoUsuario();
+            try {
+                criarNovoUsuario();
+            } catch (EmailInvalidoException e) {
+                System.out.println("Erro! " + e.getMessage());
+            }
             if (usuarioAtual == null) {
                 return;
             }
@@ -128,14 +143,26 @@ public class Menu {
                     usuarioAtual.listPlaylists();
                     break;
                 case 3:
-                    acessarPlaylistPorCodigo();
+                    try {
+                        acessarPlaylistPorCodigo();
+                    } catch (PlaylistNaoEncontradaException e) {
+                        System.out.println("Erro! " + e.getMessage());
+                    }
                     break;
                 case 4:
-                    Playlist playlist = buscarPlaylistPorCodigo();
-                    menuEditarPlaylist(playlist);
+                    try {
+                        Playlist playlist = buscarPlaylistPorCodigo();
+                        menuEditarPlaylist(playlist);
+                    } catch (PlaylistNaoEncontradaException e) {
+                        System.out.println("Erro! " + e.getMessage());
+                    }
                     break;
                 case 5:
-                    calcularDuracaoPlaylist();
+                    try {
+                        calcularDuracaoPlaylist();
+                    } catch (PlaylistNaoEncontradaException e) {
+                        System.out.println("Erro! " + e.getMessage());
+                    }
                     break;
                 case 6:
                     System.out.println("Retornando...");
@@ -159,7 +186,7 @@ public class Menu {
         }
     }
     //Metodo para buscar playlist por codigo
-    private Playlist buscarPlaylistPorCodigo() {
+    private Playlist buscarPlaylistPorCodigo() throws PlaylistNaoEncontradaException {
         System.out.print("Digite o código da playlist: ");
         int codigo = Integer.parseInt(scanner.nextLine());
 
@@ -168,23 +195,19 @@ public class Menu {
                 return playlist;
             }
         }
-        return null;
+        throw new PlaylistNaoEncontradaException();
     }
 
     //Metodo para acessar playlist por código
-    private void acessarPlaylistPorCodigo() {
+    private void acessarPlaylistPorCodigo() throws PlaylistNaoEncontradaException {
         Playlist playlist = buscarPlaylistPorCodigo();
 
-        if (playlist != null) {
             System.out.println("Playlist encontrada: " + playlist.getNome());
             playlist.listarMusicas();
-        } else {
-            System.out.println("Playlist não encontrada!");
-        }
     }
 
     //Metodo para calcular a duração da Playlist
-    private void calcularDuracaoPlaylist() {
+    private void calcularDuracaoPlaylist() throws PlaylistNaoEncontradaException {
         Playlist playlist = buscarPlaylistPorCodigo();
 
         if (playlist != null) {

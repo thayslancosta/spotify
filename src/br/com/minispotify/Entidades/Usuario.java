@@ -1,5 +1,7 @@
 package br.com.minispotify.Entidades;
 
+import br.com.minispotify.Exceptions.EmailInvalidoException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ public class Usuario {
     private List<Playlist> listaPlaylists;
 
     public Usuario(String nome, String email) {
+
         this.nome = nome;
         this.email = email;
         this.listaPlaylists = new ArrayList<>();
